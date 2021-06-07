@@ -9,8 +9,13 @@ enum Direction {
 }
 
 pub fn find_next_point(color: &Color, board: &[[PointStatus; BOARD_SIZE]; BOARD_SIZE]) -> Point {
-  let mut x = rand::thread_rng().gen_range(0..19);
-  let mut y = rand::thread_rng().gen_range(0..19);
+  let mut x: usize;
+  let mut y: usize;
+
+  if is_empty(board) {
+    // 보드가 비어있는 경우9,9(가운데)에 둔다.
+    return Point::new(9, 9);
+  }
 
   // 1. 동일 방향으로 인접한 돌멩이가 4개인 것이 있는가?
   // 1-1. 나와 동일한 색인가? 4개와 인접한 곳에 둔다.
@@ -27,7 +32,8 @@ pub fn find_next_point(color: &Color, board: &[[PointStatus; BOARD_SIZE]; BOARD_
 
   // 4. 나와 동일한 색의 점을 찾고, 8방위 중에서 랜덤으로 한 자리를 골라서 둔다.
 
-  // 5. 보드가 비어있는 경우9,9(가운데)에 둔다.
+  x = rand::thread_rng().gen_range(0..19);
+  y = rand::thread_rng().gen_range(0..19);
 
   while board[x][y] != PointStatus::Empty {
     x = rand::thread_rng().gen_range(0..19);
@@ -35,6 +41,14 @@ pub fn find_next_point(color: &Color, board: &[[PointStatus; BOARD_SIZE]; BOARD_
   }
 
   Point::new(x, y)
+}
+
+fn is_empty(board: &[[PointStatus; BOARD_SIZE]; BOARD_SIZE]) -> bool {
+  board.into_iter().flatten().all(|&ps| match ps {
+    PointStatus::Empty => true,
+    PointStatus::Black(_) => false,
+    PointStatus::White(_) => false,
+  })
 }
 
 pub fn check_game_end(board: &[[PointStatus; BOARD_SIZE]; BOARD_SIZE]) -> bool {
