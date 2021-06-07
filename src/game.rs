@@ -4,13 +4,6 @@ mod renderer;
 
 pub const BOARD_SIZE: usize = 19;
 
-enum Direction {
-  Vertical,
-  Horizontal,
-  DiagonalLeftBottom,
-  DiagonalRightBottom,
-}
-
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub struct Point {
   x: usize,
