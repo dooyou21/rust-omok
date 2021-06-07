@@ -1,5 +1,5 @@
-use rand::prelude::*;
 use std::io::{self, Write};
+mod calculator;
 mod renderer;
 
 pub const BOARD_SIZE: usize = 19;
@@ -24,7 +24,7 @@ impl Point {
 }
 
 #[derive(Debug)]
-enum Color {
+pub enum Color {
   Black,
   White,
 }
@@ -53,40 +53,26 @@ enum Player {
 
 pub fn run() {
   let mut board = [[PointStatus::Empty; BOARD_SIZE]; BOARD_SIZE];
-  let mut turn: Player = Player::Player1;
+  let mut turn: Player;
   let mut is_game_end: bool = false;
 
   print!("\nChoose your stone color - (b)lack / (w)hite : ");
   io::stdout().flush().unwrap();
 
-  let mut input_line = String::new();
-  let mut player_colors = [Color::Black, Color::White]; // [computer, user];
-
-  loop {
-    io::stdin().read_line(&mut input_line).unwrap();
-    let input = input_line.trim();
-    if input.eq("b") || input.eq("B") {
-      player_colors[1] = Color::Black;
-      player_colors[0] = Color::White;
-      turn = Player::Player2;
-      break;
-    } else if input.eq("w") || input.eq("W") {
-      player_colors[1] = Color::White;
-      player_colors[0] = Color::Black;
-      turn = Player::Player1;
-      break;
-    } else {
-      print!("enter (b) or (w)");
-      io::stdout().flush().unwrap();
-      continue;
-    }
-  }
-
-  renderer::print_board(&board);
+  let player_colors = get_color_from_user(); // [computer, user];
   println!(
     "user:{:?}, computer:{:?}",
     player_colors[1], player_colors[0]
   );
+
+  match player_colors[0] {
+    Color::Black => {
+      turn = Player::Player1;
+    }
+    Color::White => {
+      turn = Player::Player2;
+    }
+  };
 
   loop {
     if is_game_end {
@@ -96,7 +82,7 @@ pub fn run() {
     match turn {
       Player::Player1 => {
         // computer
-        let next_point: Point = find_point(&player_colors[0], &board);
+        let next_point: Point = calculator::find_next_point(&player_colors[0], &board);
         place_stone(next_point.x, next_point.y, &player_colors[0], &mut board);
         renderer::print_board(&board);
         turn = Player::Player2;
@@ -110,27 +96,10 @@ pub fn run() {
       }
     }
 
-    is_game_end = check_game_end(&board);
+    is_game_end = calculator::check_game_end(&board);
   }
 
   renderer::print_board(&board);
-}
-
-fn find_point(color: &Color, board: &[[PointStatus; BOARD_SIZE]; BOARD_SIZE]) -> Point {
-  let mut x = rand::thread_rng().gen_range(0..19);
-  let mut y = rand::thread_rng().gen_range(0..19);
-
-  while board[x][y] != PointStatus::Empty {
-    x = rand::thread_rng().gen_range(0..19);
-    y = rand::thread_rng().gen_range(0..19);
-  }
-
-  Point::new(x, y)
-}
-
-fn check_game_end(board: &[[PointStatus; BOARD_SIZE]; BOARD_SIZE]) -> bool {
-  // TODO: 게임이 끝났는지 판단할 수 있어야 함.
-  false
 }
 
 fn place_stone(
@@ -147,6 +116,29 @@ fn place_stone(
     Color::Black => PointStatus::Black(point),
   };
   board[x][y] = point_status;
+}
+
+fn get_color_from_user() -> [Color; 2] {
+  let mut player_colors = [Color::Black, Color::White];
+  let mut input_line = String::new();
+  loop {
+    io::stdin().read_line(&mut input_line).unwrap();
+    let input = input_line.trim();
+    if input.eq("b") || input.eq("B") {
+      player_colors[1] = Color::Black;
+      player_colors[0] = Color::White;
+      break;
+    } else if input.eq("w") || input.eq("W") {
+      player_colors[1] = Color::White;
+      player_colors[0] = Color::Black;
+      break;
+    } else {
+      print!("enter (b) or (w)");
+      io::stdout().flush().unwrap();
+      continue;
+    }
+  }
+  player_colors
 }
 
 fn get_position_from_user() -> Point {
