@@ -2,7 +2,7 @@ use rand::prelude::*;
 use std::io::{self, Write};
 mod renderer;
 
-const BOARD_SIZE: usize = 19;
+pub const BOARD_SIZE: usize = 19;
 
 enum Direction {
   Vertical,
@@ -12,7 +12,7 @@ enum Direction {
 }
 
 #[derive(Debug, Copy, Clone, PartialEq)]
-struct Point {
+pub struct Point {
   x: usize,
   y: usize,
 }
@@ -30,7 +30,7 @@ enum Color {
 }
 
 #[derive(Debug, Copy, Clone, PartialEq)]
-enum PointStatus {
+pub enum PointStatus {
   Empty,
   Black(Point),
   White(Point),
