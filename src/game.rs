@@ -1,5 +1,6 @@
 use rand::prelude::*;
 use std::io::{self, Write};
+mod renderer;
 
 const BOARD_SIZE: usize = 19;
 
@@ -81,7 +82,7 @@ pub fn run() {
     }
   }
 
-  print_board(&board);
+  renderer::print_board(&board);
   println!(
     "user:{:?}, computer:{:?}",
     player_colors[1], player_colors[0]
@@ -97,14 +98,14 @@ pub fn run() {
         // computer
         let next_point: Point = find_point(&player_colors[0], &board);
         place_stone(next_point.x, next_point.y, &player_colors[0], &mut board);
-        print_board(&board);
+        renderer::print_board(&board);
         turn = Player::Player2;
       }
       Player::Player2 => {
         // user
         let next_point = get_position_from_user();
         place_stone(next_point.x, next_point.y, &player_colors[1], &mut board);
-        print_board(&board);
+        renderer::print_board(&board);
         turn = Player::Player1;
       }
     }
@@ -112,7 +113,7 @@ pub fn run() {
     is_game_end = check_game_end(&board);
   }
 
-  print_board(&board);
+  renderer::print_board(&board);
 }
 
 fn find_point(color: &Color, board: &[[PointStatus; BOARD_SIZE]; BOARD_SIZE]) -> Point {
@@ -160,17 +161,4 @@ fn get_position_from_user() -> Point {
   io::stdin().read_line(&mut y_input).unwrap();
   let y = y_input.trim().parse::<usize>().unwrap();
   Point::new(x, y)
-}
-
-fn print_board(board: &[[PointStatus; BOARD_SIZE]; BOARD_SIZE]) {
-  print!("| |0|1|2|3|4|5|6|7|8|9|0|1|2|3|4|5|6|7|8|");
-  for (i, points) in board.iter().enumerate() {
-    print!("\n|{}|", i % 10);
-    for point in points.iter() {
-      print!("{}", point.print());
-    }
-    io::stdout().flush().unwrap();
-  }
-  print!("\n\n");
-  io::stdout().flush().unwrap();
 }
