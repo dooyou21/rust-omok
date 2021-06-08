@@ -25,16 +25,16 @@ pub enum Color {
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub enum PointStatus {
   Empty,
-  Black(Point),
-  White(Point),
+  Black,
+  White,
 }
 
 impl PointStatus {
   fn print(&self) -> &str {
     match self {
       PointStatus::Empty => " |",
-      PointStatus::Black(_) => "●|",
-      PointStatus::White(_) => "○|",
+      PointStatus::Black => "●|",
+      PointStatus::White => "○|",
     }
   }
 }
@@ -48,6 +48,7 @@ pub fn run() {
   let mut board = [[PointStatus::Empty; BOARD_SIZE]; BOARD_SIZE];
   let mut turn: Player;
   let mut is_game_end: bool = false;
+  let mut just_before_point: Point = Point::new(0, 0);
 
   print!("\nChoose your stone color - (b)lack / (w)hite : ");
   io::stdout().flush().unwrap();
@@ -75,7 +76,7 @@ pub fn run() {
     match turn {
       Player::Player1 => {
         // computer
-        let next_point: Point = calculator::find_next_point(&player_colors[0], &board);
+        let next_point: Point = calculator::find_next_point(&just_before_point, &board);
         place_stone(next_point.x, next_point.y, &player_colors[0], &mut board);
         renderer::print_board(&board);
         turn = Player::Player2;
@@ -83,6 +84,18 @@ pub fn run() {
       Player::Player2 => {
         // user
         let next_point = get_position_from_user();
+
+        if next_point.x > 18 || next_point.y > 18 {
+          println!("0 ~ 18 사이의 숫자를 입력해야 함!");
+          continue;
+        }
+
+        if board[next_point.x][next_point.y] != PointStatus::Empty {
+          println!("이미 돌이 있어서 둘 수 없음!");
+          continue;
+        }
+
+        just_before_point = Point::new(next_point.x, next_point.y);
         place_stone(next_point.x, next_point.y, &player_colors[1], &mut board);
         renderer::print_board(&board);
         turn = Player::Player1;
@@ -105,8 +118,8 @@ fn place_stone(
   let point = Point::new(x, y);
 
   let point_status = match color {
-    Color::White => PointStatus::White(point),
-    Color::Black => PointStatus::Black(point),
+    Color::White => PointStatus::White,
+    Color::Black => PointStatus::Black,
   };
   board[x][y] = point_status;
 }
