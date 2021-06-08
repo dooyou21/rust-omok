@@ -1,4 +1,4 @@
-use crate::game::{Color, Point, PointStatus, BOARD_SIZE};
+use crate::game::{Point, PointStatus, BOARD_SIZE};
 // use rand::prelude::*;
 
 enum Direction {
@@ -80,6 +80,24 @@ pub fn find_next_point(
   return next_point;
 }
 
+fn get_continuous_stone(
+  direction: Direction,
+  status: PointStatus,
+  p: &Point,
+  board: &[[PointStatus; BOARD_SIZE]; BOARD_SIZE],
+) -> Vec<Point> {
+  let mut vec: Vec<Point> = vec![];
+  let available_position = get_directed_position(direction, p);
+  if board[available_position[0].x][available_position[0].y] == status {
+    vec.push(available_position[0]);
+  }
+  vec.push(Point::new(p.x, p.y));
+  if board[available_position[1].x][available_position[1].y] == status {
+    vec.push(available_position[1]);
+  }
+  vec
+}
+
 fn get_directed_position(direction: Direction, p: &Point) -> Vec<Point> {
   match direction {
     Direction::Vertical => {
@@ -109,24 +127,6 @@ fn get_directed_position(direction: Direction, p: &Point) -> Vec<Point> {
       vec
     }
   }
-}
-
-fn get_continuous_stone(
-  direction: Direction,
-  status: PointStatus,
-  p: &Point,
-  board: &[[PointStatus; BOARD_SIZE]; BOARD_SIZE],
-) -> Vec<Point> {
-  let mut vec: Vec<Point> = vec![];
-  let available_position = get_directed_position(direction, p);
-  if board[available_position[0].x][available_position[0].y] == status {
-    vec.push(available_position[0]);
-  }
-  vec.push(Point::new(p.x, p.y));
-  if board[available_position[1].x][available_position[1].y] == status {
-    vec.push(available_position[1]);
-  }
-  vec
 }
 
 // fn is_empty(board: &[[PointStatus; BOARD_SIZE]; BOARD_SIZE]) -> bool {
