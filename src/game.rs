@@ -158,5 +158,5 @@ fn get_position_from_user() -> Point {
   let mut y_input = String::new();
   io::stdin().read_line(&mut y_input).unwrap();
   let y = y_input.trim().parse::<usize>().unwrap();
-  Point::new(x, y)
+  Point::new(y, x)
 }
