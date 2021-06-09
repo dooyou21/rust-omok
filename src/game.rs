@@ -115,8 +115,6 @@ fn place_stone(
   board: &mut [[PointStatus; BOARD_SIZE]; BOARD_SIZE],
 ) {
   // if (board[x][y] != PointStatus.Empty) 일때 에러처리 필요함.
-  let point = Point::new(x, y);
-
   let point_status = match color {
     Color::White => PointStatus::White,
     Color::Black => PointStatus::Black,

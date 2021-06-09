@@ -9,6 +9,18 @@ enum Direction {
   Diagonal2, // left bottom to right top
 }
 
+#[derive(Debug, Clone)]
+struct PointGroup {
+  d: Direction,
+  points: Vec<Point>,
+}
+
+impl PointGroup {
+  fn new(d: Direction, points: Vec<Point>) -> PointGroup {
+    PointGroup { d, points }
+  }
+}
+
 pub fn find_next_point(
   just_before_point: &Point,
   board: &[[PointStatus; BOARD_SIZE]; BOARD_SIZE],
@@ -23,45 +35,13 @@ pub fn find_next_point(
       status => find_point(status, just_before_point, board),
     };
 
-    // 1. 동일 방향으로 인접한 돌멩이가 4개인 것이 있는가?
-    // 1-1. 나와 동일한 색인가? 4개와 인접한 곳에 둔다.
-
-    // 2. 동일 방향으로 인접한 돌멩이가 3개인 것이 있는가? 있으면 양 끝의 점이 후보가 된다.
-    // 좌/상 or 우/하 중에 어떻게 선택할 것인가?
-    // 1) 같은 방향으로 인접한 돌멩이가 있는 곳을 고른다
-    // 2) 주변 8방위 안에 인접한 돌멩이가 있는 쪽에 둔다 (더 많은 쪽에 둔다)
-    // 모든 조건이 동일한 경우 10,10에 가까운 점에 둔다.
-
-    // 3. 동일 방향으로 인접한 돌멩이가 2개인 것이 있는가? 있으면 양 끝점이 후보가 된다.
-    // 주변 8방위에 상대방 색의 돌멩이 하나당 1점으로 계산하여 점수가 낮은 것을 선택한다.
-    // 모든 조건이 동일한 경우 10,10에 가까운 점에 둔다.
-
-    // 4. 나와 동일한 색의 점을 찾고, 8방위 중에서 랜덤으로 한 자리를 골라서 둔다.
-
     if board[next_point.x][next_point.y] == PointStatus::Empty {
-      // x = rand::thread_rng().gen_range(0..19);
-      // y = rand::thread_rng().gen_range(0..19);
       break;
     } else {
       continue;
     }
   }
   return next_point;
-}
-
-#[derive(Debug)]
-struct NearPoints {
-  first: Option<Point>,
-  last: Option<Point>,
-}
-
-impl NearPoints {
-  fn new(p1: Option<Point>, p2: Option<Point>) -> NearPoints {
-    NearPoints {
-      first: p1,
-      last: p2,
-    }
-  }
 }
 
 fn find_point(
@@ -79,7 +59,7 @@ fn find_point(
   ]
   .concat();
 
-  println!("{:?}", point_groups);
+  println!("{:?} {:?}", status, point_groups);
 
   // 사방이 빈 경우
   if point_groups.len() == 0 {
@@ -333,18 +313,6 @@ fn get_available_point(
   available_point
 }
 
-#[derive(Debug, Clone)]
-struct PointGroup {
-  d: Direction,
-  points: Vec<Point>,
-}
-
-impl PointGroup {
-  fn new(d: Direction, points: Vec<Point>) -> PointGroup {
-    PointGroup { d, points }
-  }
-}
-
 // 해당 좌표에 어떤 돌이 있는지 확인하여 연속된 돌을 찾는다.
 fn get_continuous_directed_stones(
   direction: Direction,
@@ -447,6 +415,5 @@ fn get_directed_position(direction: &Direction, p: &Point) -> [Vec<Point>; 2] {
 }
 
 pub fn check_game_end(board: &[[PointStatus; BOARD_SIZE]; BOARD_SIZE]) -> bool {
-  // TODO: 게임이 끝났는지 판단할 수 있어야 함.
   false
 }
