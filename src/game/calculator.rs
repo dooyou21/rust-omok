@@ -488,6 +488,7 @@ pub fn check_game_end(board: &[[PointStatus; BOARD_SIZE]; BOARD_SIZE]) -> bool {
     return true;
   }
 
+  // TODO: 대각선 돌멩이를 찾아낼 수 있어야 함.
   // for i in 0..45 {
   //   count = 0;
   //   status = PointStatus::Empty;
