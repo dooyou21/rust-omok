@@ -67,7 +67,7 @@ fn find_point(
     let mut next_y: usize = point.y;
 
     if point.x < 18 && point.x > 0 {
-      let random = rand::thread_rng().gen_range(0..2);
+      let random = rand::thread_rng().gen_range(0..3);
       if random == 0 {
         next_x += 1;
       } else if random == 1 {
@@ -75,15 +75,18 @@ fn find_point(
       }
     }
     if point.y < 18 && point.y > 0 {
-      let random = rand::thread_rng().gen_range(0..2);
+      let random = rand::thread_rng().gen_range(0..3);
       if random == 0 {
         next_y += 1;
       } else if random == 1 {
         next_y -= 1;
       }
     }
-    println!("next point - 1:{:?}", next_point);
-    return Point::new(next_x, next_y);
+
+    if board[next_x][next_y] == PointStatus::Empty {
+      println!("next point - 1:{:?}", Point::new(next_x, next_y));
+      return Point::new(next_x, next_y);
+    }
   }
 
   // 3개 찾은 경우
@@ -415,5 +418,151 @@ fn get_directed_position(direction: &Direction, p: &Point) -> [Vec<Point>; 2] {
 }
 
 pub fn check_game_end(board: &[[PointStatus; BOARD_SIZE]; BOARD_SIZE]) -> bool {
-  false
+  let mut is_game_end = false;
+  let mut count: u8;
+  let mut status: PointStatus;
+
+  for i in 0..18 {
+    count = 0;
+    status = PointStatus::Empty;
+    for j in 0..18 {
+      match board[i][j] {
+        PointStatus::Empty => {
+          count = 0;
+          status = PointStatus::Empty;
+        }
+        _status => {
+          if status != _status {
+            status = _status;
+            count = 1;
+          } else {
+            count += 1;
+          }
+        }
+      }
+      if count >= 5 {
+        is_game_end = true;
+        break;
+      }
+    }
+
+    if is_game_end {
+      break;
+    }
+  }
+
+  if is_game_end {
+    return true;
+  }
+
+  for i in 0..18 {
+    count = 0;
+    status = PointStatus::Empty;
+    for j in 0..18 {
+      match board[j][i] {
+        PointStatus::Empty => {
+          count = 0;
+          status = PointStatus::Empty;
+        }
+        _status => {
+          if status != _status {
+            status = _status;
+            count = 1;
+          } else {
+            count += 1;
+          }
+        }
+      }
+      if count >= 5 {
+        is_game_end = true;
+        break;
+      }
+    }
+
+    if is_game_end {
+      break;
+    }
+  }
+
+  if is_game_end {
+    return true;
+  }
+
+  // for i in 0..45 {
+  //   count = 0;
+  //   status = PointStatus::Empty;
+  //   for j in 0..18 {
+  //     if j - i - 19 < 0 || j - i - 19 > 18 {
+  //       count = 0;
+  //       status = PointStatus::Empty;
+  //       continue;
+  //     }
+  //     match board[j][j - i - 19] {
+  //       PointStatus::Empty => {
+  //         count = 0;
+  //         status = PointStatus::Empty;
+  //       }
+  //       _status => {
+  //         if status != _status {
+  //           status = _status;
+  //           count = 1;
+  //         } else {
+  //           count += 1;
+  //         }
+  //       }
+  //     }
+  //     if count >= 5 {
+  //       is_game_end = true;
+  //       break;
+  //     }
+  //   }
+
+  //   if is_game_end {
+  //     break;
+  //   }
+  // }
+
+  // if is_game_end {
+  //   return true;
+  // }
+
+  // for i in 0..45 {
+  //   count = 0;
+  //   status = PointStatus::Empty;
+  //   for j in 0..18 {
+  //     if 18 - j + i - 19 < usize::MIN || 18 - j + i - 19 > 18 {
+  //       count = 0;
+  //       status = PointStatus::Empty;
+  //       continue;
+  //     }
+  //     match board[j][18 - j + i - 19] {
+  //       PointStatus::Empty => {
+  //         count = 0;
+  //         status = PointStatus::Empty;
+  //       }
+  //       _status => {
+  //         if status != _status {
+  //           status = _status;
+  //           count = 1;
+  //         } else {
+  //           count += 1;
+  //         }
+  //       }
+  //     }
+  //     if count >= 5 {
+  //       is_game_end = true;
+  //       break;
+  //     }
+  //   }
+
+  //   if is_game_end {
+  //     break;
+  //   }
+  // }
+
+  if is_game_end {
+    return true;
+  } else {
+    return false;
+  }
 }
