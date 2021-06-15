@@ -17,10 +17,19 @@ impl Point {
   }
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum Color {
   Black,
   White,
+}
+
+impl Color {
+  fn get_point_status(&self) -> PointStatus {
+    match self {
+      Color::White => PointStatus::White,
+      Color::Black => PointStatus::Black,
+    }
+  }
 }
 
 #[derive(Debug, Copy, Clone, PartialEq)]
@@ -38,6 +47,13 @@ impl PointStatus {
       PointStatus::White => "○|",
     }
   }
+  fn get_color(&self) -> Option<Color> {
+    match self {
+      PointStatus::Empty => None,
+      PointStatus::Black => Some(Color::Black),
+      PointStatus::White => Some(Color::White),
+    }
+  }
 }
 
 enum Player {
@@ -45,14 +61,42 @@ enum Player {
   Player2, // user
 }
 
-pub fn run() {
-  let mut board = [[PointStatus::Empty; BOARD_SIZE]; BOARD_SIZE];
-  let mut turn: Player;
-  let mut is_game_end: bool = false;
-  let mut just_before_point: Point = Point::new(0, 0);
+pub struct Board {
+  board: [[PointStatus; BOARD_SIZE]; BOARD_SIZE],
+}
 
-  print!("\nChoose your stone color - (b)lack / (w)hite : ");
-  io::stdout().flush().unwrap();
+impl Board {
+  fn new() -> Board {
+    Board {
+      board: [[PointStatus::Empty; BOARD_SIZE]; BOARD_SIZE],
+    }
+  }
+  fn check(&self, point: &Point) -> PointStatus {
+    self.board[point.y][point.x]
+  }
+  fn place_stone(&mut self, point: Point, color: &Color) -> Result<Point, &str> {
+    if self.board[point.y][point.x] != PointStatus::Empty {
+      return Err("Already exist");
+    } else {
+      self.board[point.y][point.x] = color.get_point_status();
+      return Ok(point);
+    }
+  }
+  fn print(&self) {
+    renderer::print_board(&self.board);
+  }
+  fn is_game_end(&self) -> Option<Color> {
+    match tools::check_game_end(&self.board) {
+      None => None,
+      Some(_status) => _status.get_color(),
+    }
+  }
+}
+
+pub fn run() {
+  let mut board = Board::new();
+  let mut turn: Player;
+  let mut just_before_point: Point = Point::new(0, 0);
 
   let player_colors = get_color_from_user(); // [computer, user];
   println!(
@@ -70,63 +114,61 @@ pub fn run() {
   };
 
   loop {
-    if is_game_end {
-      break;
+    match board.is_game_end() {
+      Some(_color) => {
+        if _color == player_colors[0] {
+          println!("====You Lose.. Blue win!====");
+        } else {
+          println!("====You win!====");
+        }
+        board.print();
+        break;
+      }
+      None => {}
     }
 
     match turn {
       Player::Player1 => {
         // computer
-        let next_point: Point = calculator::find_next_point(&just_before_point, &board);
-        place_stone(next_point.x, next_point.y, &player_colors[0], &mut board);
-        renderer::print_board(&board);
-        turn = Player::Player2;
+        let next_point = calculator::find_next_point(&just_before_point, &player_colors[0], &board);
+        match board.place_stone(next_point, &player_colors[0]) {
+          Err(error_message) => {
+            println!("{}", error_message);
+            continue;
+          }
+          Ok(point) => {
+            println!("blue: {:?}", point);
+            just_before_point = point;
+            turn = Player::Player2;
+            board.print();
+          }
+        }
       }
       Player::Player2 => {
         // user
         let next_point = get_position_from_user();
-
-        if next_point.x > 18 || next_point.y > 18 {
-          println!("0 ~ 18 사이의 숫자를 입력해야 함!");
-          continue;
+        match board.place_stone(next_point, &player_colors[1]) {
+          Err(error_message) => {
+            println!("{}", error_message);
+            continue;
+          }
+          Ok(point) => {
+            just_before_point = point;
+            turn = Player::Player1;
+            board.print();
+          }
         }
-
-        if board[next_point.x][next_point.y] != PointStatus::Empty {
-          println!("이미 돌이 있어서 둘 수 없음!");
-          continue;
-        }
-
-        just_before_point = Point::new(next_point.x, next_point.y);
-        place_stone(next_point.x, next_point.y, &player_colors[1], &mut board);
-        renderer::print_board(&board);
-        turn = Player::Player1;
       }
     }
-
-    is_game_end = tools::check_game_end(&board);
   }
-
-  renderer::print_board(&board);
-}
-
-fn place_stone(
-  x: usize,
-  y: usize,
-  color: &Color,
-  board: &mut [[PointStatus; BOARD_SIZE]; BOARD_SIZE],
-) {
-  // if (board[x][y] != PointStatus.Empty) 일때 에러처리 필요함.
-  let point_status = match color {
-    Color::White => PointStatus::White,
-    Color::Black => PointStatus::Black,
-  };
-  board[x][y] = point_status;
 }
 
 fn get_color_from_user() -> [Color; 2] {
   let mut player_colors = [Color::Black, Color::White];
-  let mut input_line = String::new();
   loop {
+    print!("\nChoose your stone color - (b)lack / (w)hite : ");
+    io::stdout().flush().unwrap();
+    let mut input_line = String::new();
     io::stdin().read_line(&mut input_line).unwrap();
     let input = input_line.trim();
     if input.eq("b") || input.eq("B") {
@@ -138,8 +180,7 @@ fn get_color_from_user() -> [Color; 2] {
       player_colors[0] = Color::Black;
       break;
     } else {
-      print!("enter (b) or (w)");
-      io::stdout().flush().unwrap();
+      println!("[ERROR]: Unrecognized character");
       continue;
     }
   }
@@ -147,15 +188,47 @@ fn get_color_from_user() -> [Color; 2] {
 }
 
 fn get_position_from_user() -> Point {
-  print!("x: ");
-  io::stdout().flush().unwrap();
-  let mut x_input = String::new();
-  io::stdin().read_line(&mut x_input).unwrap();
-  let x = x_input.trim().parse::<usize>().unwrap();
-  print!("y: ");
-  io::stdout().flush().unwrap();
-  let mut y_input = String::new();
-  io::stdin().read_line(&mut y_input).unwrap();
-  let y = y_input.trim().parse::<usize>().unwrap();
-  Point::new(y, x)
+  let x: usize;
+  let y: usize;
+  loop {
+    print!("x: ");
+    io::stdout().flush().unwrap();
+    let mut x_input = String::new();
+    io::stdin().read_line(&mut x_input).unwrap();
+    match x_input.trim().parse::<usize>() {
+      Ok(_x) => {
+        if _x >= BOARD_SIZE {
+          println!("[ERROR]: Out of range [0 ~ 19)");
+          continue;
+        }
+        x = _x;
+        break;
+      }
+      Err(_) => {
+        println!("[ERROR]: Not a number");
+        continue;
+      }
+    }
+  }
+  loop {
+    print!("y: ");
+    io::stdout().flush().unwrap();
+    let mut y_input = String::new();
+    io::stdin().read_line(&mut y_input).unwrap();
+    match y_input.trim().parse::<usize>() {
+      Ok(_y) => {
+        if _y >= BOARD_SIZE {
+          println!("[ERROR]: Out of range [0 ~ 19)");
+          continue;
+        }
+        y = _y;
+        break;
+      }
+      Err(_) => {
+        println!("[ERROR]: Not a number");
+        continue;
+      }
+    }
+  }
+  Point::new(x, y)
 }

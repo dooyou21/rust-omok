@@ -1,10 +1,13 @@
 use crate::game::{PointStatus, BOARD_SIZE};
 
-pub fn check_game_end(board: &[[PointStatus; BOARD_SIZE]; BOARD_SIZE]) -> bool {
+pub fn check_game_end(board: &[[PointStatus; BOARD_SIZE]; BOARD_SIZE]) -> Option<PointStatus> {
   // Horizontal
   for i in 0..BOARD_SIZE {
-    if is_continuous_stone_exist(board[i].to_vec()) {
-      return true;
+    match is_continuous_stone_exist(board[i].to_vec()) {
+      Some(point_status) => {
+        return Some(point_status);
+      }
+      None => {}
     }
   }
 
@@ -14,8 +17,11 @@ pub fn check_game_end(board: &[[PointStatus; BOARD_SIZE]; BOARD_SIZE]) -> bool {
     for i in 0..BOARD_SIZE {
       stones.push(board[i][j].clone());
     }
-    if is_continuous_stone_exist(stones) {
-      return true;
+    match is_continuous_stone_exist(stones) {
+      Some(point_status) => {
+        return Some(point_status);
+      }
+      None => {}
     }
   }
 
@@ -35,8 +41,11 @@ pub fn check_game_end(board: &[[PointStatus; BOARD_SIZE]; BOARD_SIZE]) -> bool {
       continue;
     }
 
-    if is_continuous_stone_exist(stones) {
-      return true;
+    match is_continuous_stone_exist(stones) {
+      Some(point_status) => {
+        return Some(point_status);
+      }
+      None => {}
     }
   }
   for i in 0..BOARD_SIZE {
@@ -54,8 +63,11 @@ pub fn check_game_end(board: &[[PointStatus; BOARD_SIZE]; BOARD_SIZE]) -> bool {
       continue;
     }
 
-    if is_continuous_stone_exist(stones) {
-      return true;
+    match is_continuous_stone_exist(stones) {
+      Some(point_status) => {
+        return Some(point_status);
+      }
+      None => {}
     }
   }
 
@@ -75,8 +87,11 @@ pub fn check_game_end(board: &[[PointStatus; BOARD_SIZE]; BOARD_SIZE]) -> bool {
       continue;
     }
 
-    if is_continuous_stone_exist(stones) {
-      return true;
+    match is_continuous_stone_exist(stones) {
+      Some(point_status) => {
+        return Some(point_status);
+      }
+      None => {}
     }
   }
   for i in 0..BOARD_SIZE {
@@ -94,15 +109,18 @@ pub fn check_game_end(board: &[[PointStatus; BOARD_SIZE]; BOARD_SIZE]) -> bool {
       continue;
     }
 
-    if is_continuous_stone_exist(stones) {
-      return true;
+    match is_continuous_stone_exist(stones) {
+      Some(point_status) => {
+        return Some(point_status);
+      }
+      None => {}
     }
   }
 
-  return false;
+  return None;
 }
 
-fn is_continuous_stone_exist(stones: Vec<PointStatus>) -> bool {
+fn is_continuous_stone_exist(stones: Vec<PointStatus>) -> Option<PointStatus> {
   let mut count: i8 = 0;
   let mut status: PointStatus = PointStatus::Empty;
   for point in stones.iter() {
@@ -121,8 +139,8 @@ fn is_continuous_stone_exist(stones: Vec<PointStatus>) -> bool {
       }
     }
     if count >= 5 {
-      return true;
+      return Some(status);
     }
   }
-  return false;
+  return None;
 }
