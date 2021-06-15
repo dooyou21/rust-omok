@@ -7,7 +7,7 @@ pub fn find(color: &Color, point: &Point, board: &Board) -> Point {
     let x = rand::thread_rng().gen_range(0..19);
     let y = rand::thread_rng().gen_range(0..19);
     next_point = Point::new(x, y);
-    if board.check(&next_point) != PointStatus::Empty {
+    if board.status_at(&next_point) != PointStatus::Empty {
       continue;
     } else {
       break;

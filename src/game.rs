@@ -61,6 +61,14 @@ enum Player {
   Player2, // user
 }
 
+#[derive(Debug, Clone, Copy)]
+pub enum Direction {
+  Vertical,
+  Horizontal,
+  Decrease, // left top to right bottom
+  Increase, // left bottom to right top
+}
+
 pub struct Board {
   board: [[PointStatus; BOARD_SIZE]; BOARD_SIZE],
 }
@@ -71,7 +79,7 @@ impl Board {
       board: [[PointStatus::Empty; BOARD_SIZE]; BOARD_SIZE],
     }
   }
-  fn check(&self, point: &Point) -> PointStatus {
+  fn status_at(&self, point: &Point) -> PointStatus {
     self.board[point.y][point.x]
   }
   fn place_stone(&mut self, point: Point, color: &Color) -> Result<Point, &str> {
@@ -90,6 +98,125 @@ impl Board {
       None => None,
       Some(_status) => _status.get_color(),
     }
+  }
+  fn get_directed_points(
+    &self,
+    anchor: &Point,
+    direction: Direction,
+  ) -> (Vec<(Point, PointStatus)>, Vec<(Point, PointStatus)>) {
+    let mut left = vec![];
+    let mut right = vec![];
+
+    match direction {
+      Direction::Horizontal => {
+        if anchor.x > 0 {
+          let mut x = anchor.x - 1;
+          loop {
+            let point = Point::new(x, anchor.y);
+            left.insert(0, (point, self.status_at(&point).clone()));
+            if x == 0 {
+              break;
+            }
+            x -= 1;
+          }
+        }
+
+        if anchor.x < 18 {
+          let mut x = anchor.x + 1;
+          loop {
+            let point = Point::new(x, anchor.y);
+            right.push((point, self.status_at(&point).clone()));
+            if x == 18 {
+              break;
+            }
+            x += 1;
+          }
+        }
+      }
+      Direction::Vertical => {
+        if anchor.y > 0 {
+          let mut y = anchor.y - 1;
+          loop {
+            let point = Point::new(anchor.x, y);
+            left.insert(0, (point, self.status_at(&point).clone()));
+            if y == 0 {
+              break;
+            }
+            y -= 1;
+          }
+        }
+
+        if anchor.y < 18 {
+          let mut y = anchor.y + 1;
+          loop {
+            let point = Point::new(anchor.x, y);
+            right.push((point, self.status_at(&point).clone()));
+            if y == 18 {
+              break;
+            }
+            y += 1;
+          }
+        }
+      }
+      Direction::Decrease => {
+        if anchor.x > 0 && anchor.y > 0 {
+          let mut x = anchor.x - 1;
+          let mut y = anchor.y - 1;
+          loop {
+            let point = Point::new(x, y);
+            left.insert(0, (point, self.status_at(&point).clone()));
+            if x == 0 || y == 0 {
+              break;
+            }
+            x -= 1;
+            y -= 1;
+          }
+        }
+        if anchor.x < 18 && anchor.y < 18 {
+          let mut x = anchor.x + 1;
+          let mut y = anchor.y + 1;
+          loop {
+            let point = Point::new(x, y);
+            right.push((point, self.status_at(&point).clone()));
+            if x == 18 || y == 18 {
+              break;
+            }
+            x += 1;
+            y += 1;
+          }
+        }
+      }
+      Direction::Increase => {
+        if anchor.x > 0 && anchor.y < 18 {
+          let mut x = anchor.x - 1;
+          let mut y = anchor.y + 1;
+          loop {
+            let point = Point::new(x, y);
+            left.insert(0, (point, self.status_at(&point)));
+            if x == 0 || y == 18 {
+              break;
+            }
+            x -= 1;
+            y += 1;
+          }
+        }
+        if anchor.x < 18 && anchor.y > 0 {
+          let mut x = anchor.x + 1;
+          let mut y = anchor.y - 1;
+          loop {
+            let point = Point::new(x, y);
+            right.push((point, self.status_at(&point).clone()));
+            if x == 18 || y == 0 {
+              break;
+            }
+            x += 1;
+            y -= 1;
+          }
+        }
+      }
+    }
+
+    (left, right)
   }
 }
 
