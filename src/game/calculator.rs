@@ -5,8 +5,8 @@ use rand::prelude::*;
 enum Direction {
   Vertical,
   Horizontal,
-  Diagonal1, // left top to right bottom
-  Diagonal2, // left bottom to right top
+  Decrease, // left top to right bottom
+  Increase, // left bottom to right top
 }
 
 #[derive(Debug, Clone)]
@@ -49,72 +49,71 @@ fn find_point(
   point: &Point,
   board: &[[PointStatus; BOARD_SIZE]; BOARD_SIZE],
 ) -> Point {
-  let mut next_point: Option<Point> = None;
+  // let mut next_point: Option<Point> = None;
+  // let point_groups: Vec<PointGroup> = [
+  //   get_continuous_directed_stones(Direction::Vertical, status, point, board),
+  //   get_continuous_directed_stones(Direction::Horizontal, status, point, board),
+  //   get_continuous_directed_stones(Direction::Decrease, status, point, board),
+  //   get_continuous_directed_stones(Direction::Increase, status, point, board),
+  // ]
+  // .concat();
 
-  let point_groups: Vec<PointGroup> = [
-    get_continuous_directed_stones(Direction::Vertical, status, point, board),
-    get_continuous_directed_stones(Direction::Horizontal, status, point, board),
-    get_continuous_directed_stones(Direction::Diagonal1, status, point, board),
-    get_continuous_directed_stones(Direction::Diagonal2, status, point, board),
-  ]
-  .concat();
+  // println!("{:?} {:?}", status, point_groups);
 
-  println!("{:?} {:?}", status, point_groups);
+  // // 사방이 빈 경우
+  // if point_groups.len() == 0 {
+  //   let mut next_x: usize = point.x;
+  //   let mut next_y: usize = point.y;
 
-  // 사방이 빈 경우
-  if point_groups.len() == 0 {
-    let mut next_x: usize = point.x;
-    let mut next_y: usize = point.y;
+  //   if point.x < 18 && point.x > 0 {
+  //     let random = rand::thread_rng().gen_range(0..3);
+  //     if random == 0 {
+  //       next_x += 1;
+  //     } else if random == 1 {
+  //       next_x -= 1;
+  //     }
+  //   }
+  //   if point.y < 18 && point.y > 0 {
+  //     let random = rand::thread_rng().gen_range(0..3);
+  //     if random == 0 {
+  //       next_y += 1;
+  //     } else if random == 1 {
+  //       next_y -= 1;
+  //     }
+  //   }
 
-    if point.x < 18 && point.x > 0 {
-      let random = rand::thread_rng().gen_range(0..3);
-      if random == 0 {
-        next_x += 1;
-      } else if random == 1 {
-        next_x -= 1;
-      }
-    }
-    if point.y < 18 && point.y > 0 {
-      let random = rand::thread_rng().gen_range(0..3);
-      if random == 0 {
-        next_y += 1;
-      } else if random == 1 {
-        next_y -= 1;
-      }
-    }
+  //   if board[next_x][next_y] == PointStatus::Empty {
+  //     println!("next point - 1:{:?}", Point::new(next_x, next_y));
+  //     return Point::new(next_x, next_y);
+  //   }
+  // }
 
-    if board[next_x][next_y] == PointStatus::Empty {
-      println!("next point - 1:{:?}", Point::new(next_x, next_y));
-      return Point::new(next_x, next_y);
-    }
-  }
+  // // 3개 찾은 경우
+  // for pg in point_groups.iter() {
+  //   // pg.d 에 따라서 계산식을 고른다.
+  //   // first, last 를 찾아서 그거보다 더 바깥쪽으로 가는 점을 찾는다.
+  //   if pg.points.len() == 3 {
+  //     next_point = get_available_point(pg, status, board);
+  //   }
+  // }
+  // if next_point != None {
+  //   println!("next point - 3:{:?}", next_point);
+  //   return next_point.unwrap();
+  // }
 
-  // 3개 찾은 경우
-  for pg in point_groups.iter() {
-    // pg.d 에 따라서 계산식을 고른다.
-    // first, last 를 찾아서 그거보다 더 바깥쪽으로 가는 점을 찾는다.
-    if pg.points.len() == 3 {
-      next_point = get_available_point(pg, status, board);
-    }
-  }
-  if next_point != None {
-    println!("next point - 3:{:?}", next_point);
-    return next_point.unwrap();
-  }
+  // // 2개 찾은 경우
+  // for pg in point_groups.iter() {
+  //   // pg.d 에 따라서 계산식을 고른다.
+  //   // first, last 를 찾아서 그거보다 더 바깥쪽으로 가는 점을 찾는다.
+  //   if pg.points.len() == 2 {
+  //     next_point = get_available_point(pg, status, board);
+  //   }
+  // }
 
-  // 2개 찾은 경우
-  for pg in point_groups.iter() {
-    // pg.d 에 따라서 계산식을 고른다.
-    // first, last 를 찾아서 그거보다 더 바깥쪽으로 가는 점을 찾는다.
-    if pg.points.len() == 2 {
-      next_point = get_available_point(pg, status, board);
-    }
-  }
-
-  if next_point != None {
-    println!("next point - 2:{:?}", next_point);
-    return next_point.unwrap();
-  }
+  // if next_point != None {
+  //   println!("next point - 2:{:?}", next_point);
+  //   return next_point.unwrap();
+  // }
 
   // 계산을 못 한 경우 아무데나 둔다.
   let mut x: usize;
@@ -225,7 +224,7 @@ fn get_available_point(
         None
       };
     }
-    Direction::Diagonal1 => {
+    Direction::Decrease => {
       prev = if first.x > 0 && first.y > 0 {
         if board[first.x - 1][first.y - 1] == PointStatus::Empty {
           Some(Point::new(first.x - 1, first.y - 1))
@@ -265,7 +264,7 @@ fn get_available_point(
         None
       };
     }
-    Direction::Diagonal2 => {
+    Direction::Increase => {
       prev = if first.x > 0 && first.y < 18 {
         if board[first.x - 1][first.y + 1] == PointStatus::Empty {
           Some(Point::new(first.x - 1, first.y + 1))
@@ -379,7 +378,7 @@ fn get_directed_position(direction: &Direction, p: &Point) -> [Vec<Point>; 2] {
         points_vectors[1].push(Point::new(p.x + 2, p.y));
       }
     }
-    Direction::Diagonal1 => {
+    Direction::Decrease => {
       // diagonal (left top to right bottom)
       if p.x > 1 && p.y > 1 {
         points_vectors[0].push(Point::new(p.x - 2, p.y - 2));
@@ -396,7 +395,7 @@ fn get_directed_position(direction: &Direction, p: &Point) -> [Vec<Point>; 2] {
         points_vectors[1].push(Point::new(p.x + 2, p.y + 2));
       }
     }
-    Direction::Diagonal2 => {
+    Direction::Increase => {
       // diagonal (left bottom to right top)
       if p.x > 1 && p.y < 17 {
         points_vectors[0].push(Point::new(p.x - 2, p.y + 2));
@@ -419,18 +418,98 @@ fn get_directed_position(direction: &Direction, p: &Point) -> [Vec<Point>; 2] {
 
 pub fn check_game_end(board: &[[PointStatus; BOARD_SIZE]; BOARD_SIZE]) -> bool {
   // Horizontal
-  for i in 0..18 {
+  for i in 0..BOARD_SIZE {
     if is_continuous_stone_exist(board[i].to_vec()) {
       return true;
     }
   }
 
   // Vertical
-  for i in 0..18 {
+  for j in 0..BOARD_SIZE {
     let mut stones: Vec<PointStatus> = vec![];
-    for j in 0..18 {
-      stones.push(board[j][i].clone());
+    for i in 0..BOARD_SIZE {
+      stones.push(board[i][j].clone());
     }
+    if is_continuous_stone_exist(stones) {
+      return true;
+    }
+  }
+
+  // Decrease
+  for j in 0..BOARD_SIZE {
+    let mut _j = j;
+    let mut stones: Vec<PointStatus> = vec![];
+    for i in 0..BOARD_SIZE {
+      stones.push(board[i][_j].clone());
+      if _j == BOARD_SIZE - 1 {
+        break;
+      }
+      _j += 1;
+    }
+
+    if stones.len() < 5 {
+      continue;
+    }
+
+    if is_continuous_stone_exist(stones) {
+      return true;
+    }
+  }
+  for i in 0..BOARD_SIZE {
+    let mut _i = i;
+    let mut stones: Vec<PointStatus> = vec![];
+    for j in 0..BOARD_SIZE {
+      stones.push(board[_i][j].clone());
+      if _i == BOARD_SIZE - 1 {
+        break;
+      }
+      _i += 1;
+    }
+
+    if stones.len() < 5 {
+      continue;
+    }
+
+    if is_continuous_stone_exist(stones) {
+      return true;
+    }
+  }
+
+  // Increase
+  for j in 0..BOARD_SIZE {
+    let mut _j = j;
+    let mut stones: Vec<PointStatus> = vec![];
+    for i in 0..BOARD_SIZE {
+      stones.push(board[i][_j].clone());
+      if _j == 0 {
+        break;
+      }
+      _j -= 1;
+    }
+
+    if stones.len() < 5 {
+      continue;
+    }
+
+    if is_continuous_stone_exist(stones) {
+      return true;
+    }
+  }
+  for i in 0..BOARD_SIZE {
+    let mut _i = i;
+    let mut stones: Vec<PointStatus> = vec![];
+    for j in (0..BOARD_SIZE).rev() {
+      stones.push(board[_i][j].clone());
+      if _i == BOARD_SIZE - 1 {
+        break;
+      }
+      _i += 1;
+    }
+
+    if stones.len() < 5 {
+      continue;
+    }
+
     if is_continuous_stone_exist(stones) {
       return true;
     }
