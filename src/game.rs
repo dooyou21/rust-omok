@@ -1,6 +1,7 @@
 use std::io::{self, Write};
 mod calculator;
 mod renderer;
+mod tools;
 
 pub const BOARD_SIZE: usize = 19;
 
@@ -102,7 +103,7 @@ pub fn run() {
       }
     }
 
-    is_game_end = calculator::check_game_end(&board);
+    is_game_end = tools::check_game_end(&board);
   }
 
   renderer::print_board(&board);
