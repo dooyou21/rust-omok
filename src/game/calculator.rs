@@ -418,152 +418,48 @@ fn get_directed_position(direction: &Direction, p: &Point) -> [Vec<Point>; 2] {
 }
 
 pub fn check_game_end(board: &[[PointStatus; BOARD_SIZE]; BOARD_SIZE]) -> bool {
-  let mut is_game_end = false;
-  let mut count: u8;
-  let mut status: PointStatus;
-
+  // Horizontal
   for i in 0..18 {
-    count = 0;
-    status = PointStatus::Empty;
-    for j in 0..18 {
-      match board[i][j] {
-        PointStatus::Empty => {
-          count = 0;
-          status = PointStatus::Empty;
-        }
-        _status => {
-          if status != _status {
-            status = _status;
-            count = 1;
-          } else {
-            count += 1;
-          }
-        }
-      }
-      if count >= 5 {
-        is_game_end = true;
-        break;
-      }
-    }
-
-    if is_game_end {
-      break;
+    if is_continuous_stone_exist(board[i].to_vec()) {
+      return true;
     }
   }
 
-  if is_game_end {
-    return true;
-  }
-
+  // Vertical
   for i in 0..18 {
-    count = 0;
-    status = PointStatus::Empty;
+    let mut stones: Vec<PointStatus> = vec![];
     for j in 0..18 {
-      match board[j][i] {
-        PointStatus::Empty => {
-          count = 0;
-          status = PointStatus::Empty;
-        }
-        _status => {
-          if status != _status {
-            status = _status;
-            count = 1;
-          } else {
-            count += 1;
-          }
-        }
-      }
-      if count >= 5 {
-        is_game_end = true;
-        break;
-      }
+      stones.push(board[j][i].clone());
     }
-
-    if is_game_end {
-      break;
+    if is_continuous_stone_exist(stones) {
+      return true;
     }
   }
 
-  if is_game_end {
-    return true;
+  return false;
+}
+
+fn is_continuous_stone_exist(stones: Vec<PointStatus>) -> bool {
+  let mut count: i8 = 0;
+  let mut status: PointStatus = PointStatus::Empty;
+  for point in stones.iter() {
+    match point {
+      PointStatus::Empty => {
+        count = 0;
+        status = PointStatus::Empty;
+      }
+      _status => {
+        if status != *_status {
+          status = *_status;
+          count = 1;
+        } else {
+          count += 1;
+        }
+      }
+    }
+    if count >= 5 {
+      return true;
+    }
   }
-
-  // TODO: 대각선 돌멩이를 찾아낼 수 있어야 함.
-  // for i in 0..45 {
-  //   count = 0;
-  //   status = PointStatus::Empty;
-  //   for j in 0..18 {
-  //     if j - i - 19 < 0 || j - i - 19 > 18 {
-  //       count = 0;
-  //       status = PointStatus::Empty;
-  //       continue;
-  //     }
-  //     match board[j][j - i - 19] {
-  //       PointStatus::Empty => {
-  //         count = 0;
-  //         status = PointStatus::Empty;
-  //       }
-  //       _status => {
-  //         if status != _status {
-  //           status = _status;
-  //           count = 1;
-  //         } else {
-  //           count += 1;
-  //         }
-  //       }
-  //     }
-  //     if count >= 5 {
-  //       is_game_end = true;
-  //       break;
-  //     }
-  //   }
-
-  //   if is_game_end {
-  //     break;
-  //   }
-  // }
-
-  // if is_game_end {
-  //   return true;
-  // }
-
-  // for i in 0..45 {
-  //   count = 0;
-  //   status = PointStatus::Empty;
-  //   for j in 0..18 {
-  //     if 18 - j + i - 19 < usize::MIN || 18 - j + i - 19 > 18 {
-  //       count = 0;
-  //       status = PointStatus::Empty;
-  //       continue;
-  //     }
-  //     match board[j][18 - j + i - 19] {
-  //       PointStatus::Empty => {
-  //         count = 0;
-  //         status = PointStatus::Empty;
-  //       }
-  //       _status => {
-  //         if status != _status {
-  //           status = _status;
-  //           count = 1;
-  //         } else {
-  //           count += 1;
-  //         }
-  //       }
-  //     }
-  //     if count >= 5 {
-  //       is_game_end = true;
-  //       break;
-  //     }
-  //   }
-
-  //   if is_game_end {
-  //     break;
-  //   }
-  // }
-
-  if is_game_end {
-    return true;
-  } else {
-    return false;
-  }
+  return false;
 }
