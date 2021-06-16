@@ -32,7 +32,7 @@ impl Color {
   }
 }
 
-#[derive(Debug, Copy, Clone, PartialEq)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub enum PointStatus {
   Empty,
   Black,
@@ -103,7 +103,7 @@ impl Board {
     &self,
     anchor: &Point,
     direction: Direction,
-  ) -> (Vec<(Point, PointStatus)>, Vec<(Point, PointStatus)>) {
+  ) -> (Vec<PointStatus>, Vec<PointStatus>) {
     let mut left = vec![];
     let mut right = vec![];
 
@@ -113,7 +113,7 @@ impl Board {
           let mut x = anchor.x - 1;
           loop {
             let point = Point::new(x, anchor.y);
-            left.insert(0, (point, self.status_at(&point).clone()));
+            left.push(self.status_at(&point).clone());
             if x == 0 {
               break;
             }
@@ -125,7 +125,7 @@ impl Board {
           let mut x = anchor.x + 1;
           loop {
             let point = Point::new(x, anchor.y);
-            right.push((point, self.status_at(&point).clone()));
+            right.push(self.status_at(&point).clone());
             if x == 18 {
               break;
             }
@@ -138,7 +138,7 @@ impl Board {
           let mut y = anchor.y - 1;
           loop {
             let point = Point::new(anchor.x, y);
-            left.insert(0, (point, self.status_at(&point).clone()));
+            left.push(self.status_at(&point).clone());
             if y == 0 {
               break;
             }
@@ -150,7 +150,7 @@ impl Board {
           let mut y = anchor.y + 1;
           loop {
             let point = Point::new(anchor.x, y);
-            right.push((point, self.status_at(&point).clone()));
+            right.push(self.status_at(&point).clone());
             if y == 18 {
               break;
             }
@@ -164,7 +164,7 @@ impl Board {
           let mut y = anchor.y - 1;
           loop {
             let point = Point::new(x, y);
-            left.insert(0, (point, self.status_at(&point).clone()));
+            left.push(self.status_at(&point).clone());
             if x == 0 || y == 0 {
               break;
             }
@@ -177,7 +177,7 @@ impl Board {
           let mut y = anchor.y + 1;
           loop {
             let point = Point::new(x, y);
-            right.push((point, self.status_at(&point).clone()));
+            right.push(self.status_at(&point).clone());
             if x == 18 || y == 18 {
               break;
             }
@@ -192,7 +192,7 @@ impl Board {
           let mut y = anchor.y + 1;
           loop {
             let point = Point::new(x, y);
-            left.insert(0, (point, self.status_at(&point)));
+            left.push(self.status_at(&point));
             if x == 0 || y == 18 {
               break;
             }
@@ -205,7 +205,7 @@ impl Board {
           let mut y = anchor.y - 1;
           loop {
             let point = Point::new(x, y);
-            right.push((point, self.status_at(&point).clone()));
+            right.push(self.status_at(&point).clone());
             if x == 18 || y == 0 {
               break;
             }
@@ -215,8 +215,68 @@ impl Board {
         }
       }
     }
-
     (left, right)
+  }
+  fn get_available_near_points(&self, anchor: &Point) -> Vec<Point> {
+    let mut points = vec![];
+
+    if anchor.x > 0 && anchor.y > 0 {
+      // up-left
+      let _x = anchor.x - 1;
+      let _y = anchor.y - 1;
+      points.push(Point::new(_x, _y));
+    }
+
+    if anchor.y > 0 {
+      // up
+      let _x = anchor.x;
+      let _y = anchor.y - 1;
+      points.push(Point::new(_x, _y));
+    }
+
+    if anchor.x < BOARD_SIZE - 1 && anchor.y > 0 {
+      // up-right
+      let _x = anchor.x + 1;
+      let _y = anchor.y - 1;
+      points.push(Point::new(_x, _y));
+    }
+
+    if anchor.x < BOARD_SIZE - 1 {
+      // right
+      let _x = anchor.x + 1;
+      let _y = anchor.y;
+      points.push(Point::new(_x, _y));
+    }
+
+    if anchor.x < BOARD_SIZE - 1 && anchor.y < BOARD_SIZE - 1 {
+      // down-right
+      let _x = anchor.x + 1;
+      let _y = anchor.y + 1;
+      points.push(Point::new(_x, _y));
+    }
+
+    if anchor.y < BOARD_SIZE - 1 {
+      // down
+      let _x = anchor.x;
+      let _y = anchor.y + 1;
+      points.push(Point::new(_x, _y));
+    }
+
+    if anchor.y < BOARD_SIZE - 1 && anchor.x > 0 {
+      // down-left
+      let _x = anchor.x - 1;
+      let _y = anchor.y + 1;
+      points.push(Point::new(_x, _y));
+    }
+
+    if anchor.x > 0 {
+      // left
+      let _x = anchor.x - 1;
+      let _y = anchor.y;
+      points.push(Point::new(_x, _y));
+    }
+
+    points
   }
 }
 

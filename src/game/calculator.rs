@@ -1,4 +1,4 @@
-use crate::game::{Board, Color, Direction, Point, PointStatus};
+use crate::game::{Board, Color, Point, PointStatus};
 // mod find_point_v1;
 // mod random;
 mod find_point_v2;
