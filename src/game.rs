@@ -304,9 +304,9 @@ pub fn run() {
     match board.is_game_end() {
       Some(_color) => {
         if _color == player_colors[0] {
-          println!("====You Lose.. Blue win!====");
+          println!("====== You Lose..ヾ(ﾟдﾟ)ﾉ゛ Blue win! ᕦ( ᐛ )ᕡ ======");
         } else {
-          println!("====You win!====");
+          println!("====== You win! (•̀ᴗ•́)و ̑̑ ======");
         }
         board.print();
         break;
@@ -353,7 +353,7 @@ pub fn run() {
 fn get_color_from_user() -> [Color; 2] {
   let mut player_colors = [Color::Black, Color::White];
   loop {
-    print!("\nChoose your stone color - (b)lack / (w)hite : ");
+    print!("\n====== Choose your stone color ʕง•ᴥ•ʔง (b)lack / (w)hite : ");
     io::stdout().flush().unwrap();
     let mut input_line = String::new();
     io::stdin().read_line(&mut input_line).unwrap();
