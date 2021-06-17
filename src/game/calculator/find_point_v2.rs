@@ -92,7 +92,6 @@ impl ScoreCalculator {
       }
 
       if l_found && r_found {
-        println!("{}", s);
         score = *s;
         break;
       }
@@ -137,6 +136,7 @@ pub fn find(just_before_point: &Point, color: &Color, board: &Board) -> Point {
   }
 
   let mut highest_score: (u16, Point) = (0, Point::new(0, 0));
+  let mut highest_score_points = vec![];
 
   for x in 0..BOARD_SIZE {
     for y in 0..BOARD_SIZE {
@@ -144,12 +144,18 @@ pub fn find(just_before_point: &Point, color: &Color, board: &Board) -> Point {
       let score = score_board.get(&point);
       if score > highest_score.0 {
         highest_score = (score, point);
+        highest_score_points = vec![(score, point)];
+      } else if score == highest_score.0 {
+        highest_score_points.push((score, point));
       }
     }
   }
 
-  if highest_score.0 > 0 {
-    return highest_score.1;
+  if highest_score_points.len() > 1 {
+    let index = rand::thread_rng().gen_range(0..highest_score_points.len());
+    highest_score_points[index].1
+  } else if highest_score_points.len() == 1 {
+    highest_score_points[0].1
   } else {
     let points = board.get_available_near_points(just_before_point);
     let index = rand::thread_rng().gen_range(0..points.len());
@@ -306,6 +312,73 @@ fn make_score_board(
           vec![e.clone(), i.clone(), i.clone(), i.clone(), e.clone()],
           80,
         ),
+        // =====2개
+        (vec![u.clone()], vec![i.clone(), i.clone(), u.clone()], 5),
+        (vec![u.clone()], vec![i.clone(), i.clone(), e.clone()], 35),
+        (vec![e.clone()], vec![i.clone(), i.clone(), u.clone()], 35),
+        (vec![e.clone()], vec![i.clone(), i.clone(), e.clone()], 45),
+        //
+        (vec![i.clone(), u.clone()], vec![i.clone(), u.clone()], 5),
+        (vec![i.clone(), u.clone()], vec![i.clone(), e.clone()], 35),
+        (vec![i.clone(), e.clone()], vec![i.clone(), u.clone()], 35),
+        (vec![i.clone(), e.clone()], vec![i.clone(), e.clone()], 45),
+        //
+        (vec![i.clone(), i.clone(), u.clone()], vec![u.clone()], 5),
+        (vec![i.clone(), i.clone(), u.clone()], vec![e.clone()], 35),
+        (vec![i.clone(), i.clone(), e.clone()], vec![u.clone()], 35),
+        (vec![i.clone(), i.clone(), e.clone()], vec![e.clone()], 45),
+        //
+        (
+          vec![e.clone(), i.clone(), i.clone(), u.clone()],
+          vec![u.clone()],
+          10,
+        ),
+        (
+          vec![e.clone(), i.clone(), i.clone(), e.clone()],
+          vec![u.clone()],
+          20,
+        ),
+        (
+          vec![u.clone(), i.clone(), i.clone(), e.clone()],
+          vec![e.clone()],
+          38,
+        ),
+        (
+          vec![e.clone(), i.clone(), i.clone(), e.clone()],
+          vec![e.clone()],
+          50,
+        ),
+        //
+        (
+          vec![u.clone()],
+          vec![e.clone(), i.clone(), i.clone(), u.clone()],
+          10,
+        ),
+        (
+          vec![e.clone()],
+          vec![e.clone(), i.clone(), i.clone(), u.clone()],
+          38,
+        ),
+        (
+          vec![u.clone()],
+          vec![e.clone(), i.clone(), i.clone(), e.clone()],
+          20,
+        ),
+        (
+          vec![e.clone()],
+          vec![e.clone(), i.clone(), i.clone(), e.clone()],
+          50,
+        ),
+        // =====1개
+        (vec![u.clone()], vec![i.clone(), u.clone()], 0),
+        (vec![u.clone()], vec![i.clone(), e.clone()], 5),
+        (vec![e.clone()], vec![i.clone(), u.clone()], 10),
+        (vec![e.clone()], vec![i.clone(), e.clone()], 30),
+        //
+        (vec![i.clone(), u.clone()], vec![u.clone()], 0),
+        (vec![i.clone(), u.clone()], vec![e.clone()], 10),
+        (vec![i.clone(), e.clone()], vec![u.clone()], 5),
+        (vec![i.clone(), e.clone()], vec![e.clone()], 30),
       ]
     }
     ScoreMode::Defence => {
@@ -450,6 +523,73 @@ fn make_score_board(
           vec![e.clone(), i.clone(), i.clone(), i.clone(), e.clone()],
           30,
         ),
+        // =====2개
+        (vec![u.clone()], vec![i.clone(), i.clone(), u.clone()], 0),
+        (vec![u.clone()], vec![i.clone(), i.clone(), e.clone()], 5),
+        (vec![e.clone()], vec![i.clone(), i.clone(), u.clone()], 10),
+        (vec![e.clone()], vec![i.clone(), i.clone(), e.clone()], 30),
+        //
+        (vec![i.clone(), u.clone()], vec![i.clone(), u.clone()], 0),
+        (vec![i.clone(), u.clone()], vec![i.clone(), e.clone()], 8),
+        (vec![i.clone(), e.clone()], vec![i.clone(), u.clone()], 8),
+        (vec![i.clone(), e.clone()], vec![i.clone(), e.clone()], 30),
+        //
+        (vec![i.clone(), i.clone(), u.clone()], vec![u.clone()], 0),
+        (vec![i.clone(), i.clone(), u.clone()], vec![e.clone()], 10),
+        (vec![i.clone(), i.clone(), e.clone()], vec![u.clone()], 5),
+        (vec![i.clone(), i.clone(), e.clone()], vec![e.clone()], 30),
+        //
+        (
+          vec![e.clone(), i.clone(), i.clone(), u.clone()],
+          vec![u.clone()],
+          0,
+        ),
+        (
+          vec![e.clone(), i.clone(), i.clone(), e.clone()],
+          vec![u.clone()],
+          3,
+        ),
+        (
+          vec![u.clone(), i.clone(), i.clone(), e.clone()],
+          vec![e.clone()],
+          25,
+        ),
+        (
+          vec![e.clone(), i.clone(), i.clone(), e.clone()],
+          vec![e.clone()],
+          4,
+        ),
+        //
+        (
+          vec![u.clone()],
+          vec![e.clone(), i.clone(), i.clone(), u.clone()],
+          0,
+        ),
+        (
+          vec![e.clone()],
+          vec![e.clone(), i.clone(), i.clone(), u.clone()],
+          25,
+        ),
+        (
+          vec![u.clone()],
+          vec![e.clone(), i.clone(), i.clone(), e.clone()],
+          3,
+        ),
+        (
+          vec![e.clone()],
+          vec![e.clone(), i.clone(), i.clone(), e.clone()],
+          4,
+        ),
+        // =====1개
+        (vec![u.clone()], vec![i.clone(), u.clone()], 0),
+        (vec![u.clone()], vec![i.clone(), e.clone()], 2),
+        (vec![e.clone()], vec![i.clone(), u.clone()], 5),
+        (vec![e.clone()], vec![i.clone(), e.clone()], 30),
+        //
+        (vec![i.clone(), u.clone()], vec![u.clone()], 0),
+        (vec![i.clone(), u.clone()], vec![e.clone()], 5),
+        (vec![i.clone(), e.clone()], vec![u.clone()], 2),
+        (vec![i.clone(), e.clone()], vec![e.clone()], 30),
       ]
     }
   }

@@ -84,7 +84,7 @@ impl Board {
   }
   fn place_stone(&mut self, point: Point, color: &Color) -> Result<Point, &str> {
     if self.board[point.y][point.x] != PointStatus::Empty {
-      return Err("Already exist");
+      return Err("Already exist |┐∵|┘ ");
     } else {
       self.board[point.y][point.x] = color.get_point_status();
       return Ok(point);
@@ -367,7 +367,7 @@ fn get_color_from_user() -> [Color; 2] {
       player_colors[0] = Color::Black;
       break;
     } else {
-      println!("[ERROR]: Unrecognized character");
+      println!("[ERROR]: Unrecognized character |┐∵|┘");
       continue;
     }
   }
@@ -385,14 +385,14 @@ fn get_position_from_user() -> Point {
     match x_input.trim().parse::<usize>() {
       Ok(_x) => {
         if _x >= BOARD_SIZE {
-          println!("[ERROR]: Out of range [0 ~ 19)");
+          println!("[ERROR]: Out of range [0 ~ 19) |┐∵|┘");
           continue;
         }
         x = _x;
         break;
       }
       Err(_) => {
-        println!("[ERROR]: Not a number");
+        println!("[ERROR]: Not a number |┐∵|┘");
         continue;
       }
     }
@@ -405,14 +405,14 @@ fn get_position_from_user() -> Point {
     match y_input.trim().parse::<usize>() {
       Ok(_y) => {
         if _y >= BOARD_SIZE {
-          println!("[ERROR]: Out of range [0 ~ 19)");
+          println!("[ERROR]: Out of range [0 ~ 19) |┐∵|┘");
           continue;
         }
         y = _y;
         break;
       }
       Err(_) => {
-        println!("[ERROR]: Not a number");
+        println!("[ERROR]: Not a number |┐∵|┘");
         continue;
       }
     }
